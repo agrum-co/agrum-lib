@@ -1,0 +1,19 @@
+{
+  "name": "agrum-lib",
+  "version": "0.1.0",
+  "description": "Agrum scripts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agrum-co/agrum-lib.git"
+  },
+  "author": "“jpjurado” <“jjurado@agrum.co”> (“http://agrum.co”)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/agrum-co/agrum-lib/issues"
+  },
+  "homepage": "https://github.com/agrum-co/agrum-lib#readme"
+}
