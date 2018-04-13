@@ -8,34 +8,26 @@ var agrum_utils = require('./utils/utils')
 var agrum_lib = Object.create({});
 
 
-//Return sencons to HH:mm format
-agrum_lib.getHHMM = (seconds) => {
-	/*
-	return moment().startOf('day')
-	    .seconds(seconds)
-	    .format('H:mm')
-	*/
-	seconds = +seconds || 0
-	let nTime = +seconds/3600;
-	let nHours = parseInt(nTime);
-	let decimal_minutes = (nTime%1)*60
-	let nMinutes = decimal_minutes | 0;
-	let mm = ''+nMinutes
-	if(nMinutes < 10){
-	mm = '0'+nMinutes;
-	}
-	return ''+nHours+':'+mm;
-}
-
 //get Data from server
-agrum_lib.get_data = (url,skip,res_data,cb)=>{
-	let url_request = url+'&skip='+skip;
+/**
+url: url to request
+skip: skip to query request
+res_data: data requested
+cb: funcion to execute
+*/
+agrum_lib.get_data = (url,configs,res_data,cb)=>{
+	if(!configs.skip)
+		configs.skip = 0
+	if(!configs.limit)
+		configs.limit = 100
+	let url_request = url+'&skip='+configs.skip;
 	console.log(url_request)
 	request.get(url_request,(err,res,data)=>{
 		data = JSON.parse(data)
 		res_data = res_data.concat(data);
-		if(data.length == 100){
-			agrum_lib.get_data(url,skip + 100,res_data,cb);
+		if(data.length == configs.limit){
+			configs.skip += configs.limit
+			agrum_lib.get_data(url,configs,res_data,cb);
 		}
 		else{
 			cb(res_data);
