@@ -785,7 +785,7 @@
                                         <div style="Margin-left: 20px;Margin-right: 20px;">
                                             <div style="mso-line-height-rule: exactly;mso-text-raise: 4px;">
                                                 <h1 class="size-64" style="Margin-top: 0;Margin-bottom: 20px;font-style: normal;font-weight: normal;color: #000;font-size: 34px !important;line-height: 50px;font-family: avenir,sans-serif;text-align: center;" lang="x-size-64"><span class="font-avenir"><strong><span style="color:#ffffff">Resumen Jornada</span></strong></span></h1>
-                                                <h1 class="size-64" style="Margin-top: 0;Margin-bottom: 20px;font-style: normal;font-weight: normal;color: #000;font-size: 40px !important;line-height: 50px;font-family: avenir,sans-serif;text-align: center;" lang="x-size-64"><span class="font-avenir"><strong><span style="color:#ffffff">2018/06/27 - Completa</span></strong></span></h1>
+                                                <h1 class="size-64" style="Margin-top: 0;Margin-bottom: 20px;font-style: normal;font-weight: normal;color: #000;font-size: 40px !important;line-height: 50px;font-family: avenir,sans-serif;text-align: center;" lang="x-size-64"><span class="font-avenir"><strong><span style="color:#ffffff"><%= options.date %> - Completa</span></strong></span></h1>
                                             </div>
                                         </div>
 
@@ -848,9 +848,19 @@
                                         <div style="Margin-left: 20px;Margin-right: 20px;">
                                             <div style="mso-line-height-rule: exactly;mso-text-raise: 4px;">
                                                 <p style="Margin-top: 0;Margin-bottom: 20px;">
-                                                  <b>Número de Máquinas: </b> 3 <br/>
-                                                  <b>Horas Trabajadas: </b> 80 <br/>
-                                                  <b>Porcentaje de Transmisión: </b> 98%
+                                                <% 
+                                                    let horas_trabajadas = R.reduce((acc,device)=>{
+                                                        let hours = 0
+                                                        let trabajando = R.filter(event=>event.name == 'Trabajando',device.events)[0]
+                                                        return acc + trabajando.hours
+                                                    },0,data)
+                                                    let horas_transmition = R.reduce((acc,device)=>{
+                                                        return acc + device.seconds/3600
+                                                    },0,data)
+                                                %>
+                                                  <b>Número de Máquinas: </b> <%= data.length %> <br/>
+                                                  <b>Horas Trabajadas: </b> <%= horas_trabajadas %> <br/>
+                                                  <b>Porcentaje de Transmisión: </b> <%= horas_transmition %>%
                                                 </p>
                                             </div>
                                         </div>
@@ -912,7 +922,6 @@
                                                   <b>Apagado: </b> 1:30 <br/>
                                                   <b>Ralentí: </b> 0:30 <br/>
                                                   <b>Movimiento: </b> 8:30 <br/>
-                                                  <br/>
                                                   <b>Recorrió: </b> 44Km <br/>
                                                 </p>
                                             </div>
