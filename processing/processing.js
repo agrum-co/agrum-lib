@@ -249,8 +249,9 @@ agrum_processing.process_data_wagons = (events) =>{
     return stats_cosecha
 }
 
-agrum_processing.processDataCycles = (events,geofences) =>{
-	console.log('GEOFENCES',geofences)
+agrum_processing.processDataCycles = (events_data,geofences) =>{
+    let events = R.clone(events_data)
+	//console.log('GEOFENCES',geofences)
     let count = 0
     events.forEach((event,index)=>{
         event.geofence = agrum_utils.get_geofence(event,geofences) //TODO
@@ -291,6 +292,11 @@ agrum_processing.processDataCycles = (events,geofences) =>{
     })
 
     let events_grouped_geofence = R.groupWith((a,b)=>a.geofence==b.geofence,events)
+
+    events_grouped_geofence.forEach(event=>{
+    	console.log(event[0].geofence)
+    })
+
     events_grouped_geofence = R.map(events_geofence=>{
         let event_reduced = {
             distance : 0,
@@ -301,7 +307,7 @@ agrum_processing.processDataCycles = (events,geofences) =>{
             //timestamp_utc: events_geofence[0]//events_geofence[0].timestamp,
         }
         return R.reduce((acc,val)=>{
-            acc.distance += val.distance/1000 || 0
+            acc.distance += val.distance || 0
             acc.duration += val.duration/3600 || 0
             acc.max_speed = R.max(acc.max_speed,val.speed)
             if(val.time_end)
@@ -309,8 +315,28 @@ agrum_processing.processDataCycles = (events,geofences) =>{
             return acc
         },event_reduced,events_geofence)
     },events_grouped_geofence)
-    let events_grouped_cicle = R.groupWith((a,b)=>(''+a.geofence).startsWith('INGENIO') && !(''+b.geofence).startsWith('INGENIO'),events_grouped_geofence)
-
+    
+    events_grouped_geofence.forEach(events_grouped=>{
+        
+    })
+    
+    /**
+     * Code for group events in cycle starting for Ingenio
+    **/
+    let events_grouped_cicle = []
+    let stack_events = []
+    
+    events_grouped_geofence.forEach(event_grouped_geofence=>{
+        if(event_grouped_geofence.geofence && event_grouped_geofence.geofence.startsWith('INGENIO')){
+            if(stack_events.length > 0){
+                events_grouped_cicle.push(stack_events)
+                stack_events = []
+            }
+        }
+        stack_events.push(event_grouped_geofence)
+    })
+    events_grouped_cicle.push(stack_events)
+    
     events_grouped_cicle = R.map(events_cicle=>{
         let distance = R.reduce((acc,val)=>acc+val.distance,0,events_cicle)
         let duration = R.reduce((acc,val)=>acc+val.duration,0,events_cicle)

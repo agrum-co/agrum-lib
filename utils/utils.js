@@ -78,16 +78,18 @@ agrum_utils.send_email = (data,options,type) => {
 }
 
 agrum_utils.generate_email = (data,options,type) => {
+	console.log('Generating email')
 	let data_machines = R.clone(data)
 	data_machines = R.map(value => {
 		value.stats.events = agrum_utils.resume_events(value.stats.events,options)
 		return value
 	},data_machines)
-
+	console.log('Render email')
 	if(!type){
 		type = 'email_template'
 	}
 	let msg = ejs.render(fs.readFileSync(path.join(__dirname,'../assets/templates/'+type+'.ejs'), 'utf8'),{data:data_machines,options,R})
+	console.log('Generated')
 	return msg
 }
 
