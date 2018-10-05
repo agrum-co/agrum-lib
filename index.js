@@ -78,6 +78,7 @@ agrum_lib.get_data_promise = (url,configs,res_data,device,types)=>{
 	if(!configs.limit)
 		configs.limit = 500
 	let url_request = url+'&skip='+configs.skip
+	console.log(url_request)
 	return rp(url_request)
 	.then((data) => {
 		data = JSON.parse(data)
@@ -115,6 +116,7 @@ agrum_lib.get_data_promise_device = (configs,res_data,device,types)=>{
     let query = '/api/v1.0/events/?Authorization='+configs.Authorization+'&limit='+configs.limit+'&populate=&where={"type":"'+types[0]+'","id_device":"'+device['id_device']+'","timestamp":{">=":"'+configs['date_init']+'","<=":"'+configs['date_finish']+'"}}&sort=timestamp%20ASC'
                 
     let url_request = configs.HOST+query+'&skip='+configs.skip
+    console.log('***',url_request)
     return rp(url_request)
     .then((data) => {
         data = JSON.parse(data)

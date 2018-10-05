@@ -249,12 +249,13 @@ agrum_processing.process_data_wagons = (events) =>{
     return stats_cosecha
 }
 
-agrum_processing.processDataCycles = (events_data,geofences) =>{
+agrum_processing.processDataCycles = (events_data,geofences,process_geofences) =>{
     let events = R.clone(events_data)
 	//console.log('GEOFENCES',geofences)
     let count = 0
     events.forEach((event,index)=>{
-        event.geofence = agrum_utils.get_geofence(event,geofences) //TODO
+    	if(!process_geofences)
+        	event.geofence = agrum_utils.get_geofence(event,geofences) //TODO
         //console.log(event.geofence)
         if(index > 0 && index < events.length - 1){
 
@@ -294,7 +295,7 @@ agrum_processing.processDataCycles = (events_data,geofences) =>{
     let events_grouped_geofence = R.groupWith((a,b)=>a.geofence==b.geofence,events)
 
     events_grouped_geofence.forEach(event=>{
-    	console.log(event[0].geofence)
+    	//console.log(event[0].geofence)
     })
 
     events_grouped_geofence = R.map(events_geofence=>{
@@ -303,7 +304,7 @@ agrum_processing.processDataCycles = (events_data,geofences) =>{
             duration : 0,
             max_speed : 0,
             geofence : events_geofence[0].geofence,
-            timestamp: moment(events_geofence[0].timestamp).format('HH:mm'),//events_geofence[0].timestamp,
+            timestamp: events_geofence[0].timestamp,//events_geofence[0].timestamp,
             //timestamp_utc: events_geofence[0]//events_geofence[0].timestamp,
         }
         return R.reduce((acc,val)=>{
@@ -311,7 +312,7 @@ agrum_processing.processDataCycles = (events_data,geofences) =>{
             acc.duration += val.duration/3600 || 0
             acc.max_speed = R.max(acc.max_speed,val.speed)
             if(val.time_end)
-                acc.time_end = moment(val.time_end).format('HH:mm')
+                acc.time_end = val.time_end
             return acc
         },event_reduced,events_geofence)
     },events_grouped_geofence)
@@ -325,7 +326,6 @@ agrum_processing.processDataCycles = (events_data,geofences) =>{
     **/
     let events_grouped_cicle = []
     let stack_events = []
-    
     events_grouped_geofence.forEach(event_grouped_geofence=>{
         if(event_grouped_geofence.geofence && event_grouped_geofence.geofence.startsWith('INGENIO')){
             if(stack_events.length > 0){
@@ -338,11 +338,14 @@ agrum_processing.processDataCycles = (events_data,geofences) =>{
     events_grouped_cicle.push(stack_events)
     
     events_grouped_cicle = R.map(events_cicle=>{
+
         let distance = R.reduce((acc,val)=>acc+val.distance,0,events_cicle)
         let duration = R.reduce((acc,val)=>acc+val.duration,0,events_cicle)
+        let timestamp = (events_cicle.length > 0)?R.head(events_cicle).timestamp:undefined
+        let time_end = (events_cicle.length > 0)?R.last(events_cicle).time_end:undefined
 
         return {
-            distance,duration,events:events_cicle
+            distance,duration,events:events_cicle,timestamp,time_end
         }
     },events_grouped_cicle)
     //console.log(JSON.stringify(events_grouped_geofence,null,'  '))
@@ -353,7 +356,8 @@ agrum_processing.processDataCycles = (events_data,geofences) =>{
     let report = {
         distance,
         duration,
-        cycles:events_grouped_cicle
+        cycles:events_grouped_cicle,
+        events:events_grouped_geofence
     }
     return report
 }
